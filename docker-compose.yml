@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+    fieldsets-mail:
+        image: ${CONTAINER_REGISTRY:-fieldsets}/docker-mail:${MAIL_VERSION:-latest}
+        build:
+            context: ./
+            dockerfile: ${MAIL_CONFIG_PATH:-./}Dockerfile
+            args:
+                MAIL_VERSION: ${MAIL_VERSION:-latest}
+        container_name: fieldsets-mail
+        hostname: fieldsets-mail
+        ports:
+            - ${MAIL_PORT:-1080}:80
+        environment:
+            MAIL_HOST: ${MAIL_HOST:-172.28.0.15}
+            MAIL_PORT: ${MAIL_PORT:-1080}
+        volumes:
+            - mail-data:/data
+        networks:
+            default:
+                ipv4_address: ${MAIL_HOST:-172.28.0.15}
+
+volumes:
+    mail-data:
+        driver: local
+        name: fieldsets-mail-data
+
+networks:
+    default:
+        driver: bridge
+        name: fieldsets_network
+        attachable: true
+        ipam:
+            config:
+            - subnet: ${FIELDSETS_LOCAL_NETWORK_SUBNET:-172.28.0.0/24}
